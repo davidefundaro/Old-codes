@@ -342,3 +342,32 @@ line <- ggplot(X_new, aes(x=Time, y= Italy)) + geom_line(color= "blue")  +  geom
   labs(title= "Coviddì c'è", subtitle= "Fuck! Lock everything!", x= 'Date', y= 'Cases') + 
   theme(axis.text.x = element_text(angle=90))
 line
+
+#check combination of rows in a dataframe with for loop
+my_data <- data.frame(
+  Column1 = c("A", "B", "A", "C", "B"),
+  Column2 = c("X", "Y", "X", "Z", "Z")
+)
+
+# Get the number of rows in the data frame
+num_rows <- nrow(my_data)
+
+# Create an empty list to store the combination counts
+combination_counts <- list()
+
+# Use a for loop to calculate the combination counts
+for (i in 1:num_rows) {
+  combination <- paste0(my_data$Column1[i], "-", my_data$Column2[i])  # Combine values into a unique combination
+  #if combination is inside the combination counts add a 1 to combination
+  if (combination %in% names(combination_counts)) {
+    combination_counts[[combination]] <- combination_counts[[combination]] + 1
+    #otherwise set combination as 1
+  } else {
+    combination_counts[[combination]] <- 1
+  }
+}
+
+# Print the combination counts
+for (comb in names(combination_counts)) {
+  cat("Combination:", comb, "Count:", combination_counts[[comb]], "\n")
+}

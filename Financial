@@ -1,0 +1,41 @@
+library(dplyr)
+library(readr)
+
+#upload csv
+financial <- read_csv("Financials.csv")
+#give a first look to the data structure
+colnames(financial)
+
+#clean the column names
+#convert spaces into _
+names(financial) <- gsub(" ", "_", names(financial))
+
+#clean data
+#delete $
+financial <- as.data.frame(gsub("[$]", "", as.matrix(financial)))
+#convert - into 0 in the column discounts
+financial$Discounts <- financial$Discounts %>% gsub("-", "0", .)
+#convert - e ( e )  into 0
+financial$Profit <- financial$Profit %>% gsub("-", "0", .)
+financial$Profit <- financial$Profit %>% gsub("[(]", "0", .)
+financial$Profit <- financial$Profit %>% gsub("[)]", "0", .)
+#change the date format as date
+financial$Date<- as.Date(financial$Date, format="%d/%m/%Y")
+#delete ,
+financial <- as.data.frame(gsub("[,]", "", as.matrix(financial)))
+#change numeric data into numeric format
+financial[, c(5:12, 14, 16)] <- financial[, c(5:12, 14, 16)] %>% lapply(as.numeric)
+#verify the format
+class(financial$Profit)
+
+#obtain the total sales and profit for each date
+financial_graph <- financial %>% group_by(Date) %>% 
+  summarise_at(vars(Sales, Profit),sum)
+
+library(ggplot2)
+#create a line chart for both sales and profit according to the date
+pkpd <- ggplot(financial_graph, aes(x = Date, y = Sales, group=1)) + 
+  geom_line(aes(y= Sales, color = "Sales")) +
+  geom_line(aes(y = Profit, color = "Profit")) + labs(title= "Sales & Profit", y= "$")
+#view the chart 
+pkpd

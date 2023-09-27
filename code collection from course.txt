@@ -1,0 +1,344 @@
+test eserecizio
+#determino delle variabili
+message <- 'Should I pack an umbrella?'
+weather <- 'cloudy'
+high_chance_of_rain <- TRUE
+#chiedo al sistema se le condizioni sono rispettate e di darmi
+#l'output
+if (high_chance_of_rain ==TRUE & weather == "cloudy") {
+  message <- "Pack umbrella!"} else {
+    message <- "no need for umbrella!"}
+print(message)
+
+#altro esercizio) creo dei vettori e genero un semplice plot
+x<- c(1,2,3,4,5)
+y<- c(1,4,9,16,25)
+plot(x,y, type= 'b')
+
+#comando per installare packages
+install.packages('nome.package') #comunque meglio il comando principale per essere sicuri
+install.packages('nycflights13')
+
+library(nycflights13)
+hist(flights$distance)
+
+#linear regression model esempio
+model<- lm(dist~speed, data= cars)
+
+library(ggplot2)
+ggplot(cars, aes(dist, speed)) + geom_point()
+
+
+# %>% si usa per inserire un'oggetto in una funzione
+cars %>% head()
+
+df<- select(cars, dist, speed)
+df <- cars %>% select(dist, speed) #sono la stessa cosa scritta in maniera diversa
+#select(data, colonna1, colonna2,..) serve per selezionare delle colonne
+#per eliminare colonne
+df <- select(cars, -dist, -speed) #basra mettere il meno davanti le colonne
+
+#per la selezione delle rows si può usare filter()
+orders %>% filter(first_name == 'Joyce', price > 25) #filtro per le rows con Joyce e un prezzo > 25
+orders %>% filter(first_name == 'Joyce'| price > 25) #filtro per l'uno o per l'altro
+
+arrange(cars, dist) #ordina in ordine crescente il dataset cars a seconda di dist
+#per farlo al contrario dienta arrange(desc(cars, dist))
+
+artists <- artists %>% select(-country,-year_founded,-albums) %>% 
+  filter(spotify_monthly_listeners > 20000000, genre != 'Hip Hop') %>% 
+  arrange(desc(youtube_subscribers))
+head(artists)
+#con questo comando ho fatto prima select, poi filter, e infine arrange desc
+
+df %>% mutate(sales_tax = price * 0.075)#con questo creo una nuova colonna price * 0.075
+
+dogs <- dogs %>%
+  mutate(avg_height = (height_low_inches + height_high_inches)/2, 
+         avg_weight = (weight_low_lbs + weight_high_lbs)/2)
+head(dogs)
+
+df %>%
+  transmute(sales_tax = price * 0.075,
+            profit = price - cost_to_manufacture) #con transmute() trasformo il dataset nella nuova colonna
+#ovvero rimane solo la nuova colonna che creo
+
+df %>%
+  rename(new_name = old_name,
+         new_name = old_name) # rename()  si usa per rinominare le colonne
+
+#per esercizio (non capisco cosa c'è che non va)
+dogs %>% transmute(height_average_feet= ((height_low_inches + height_high_inches)/2)/12, 
+                   popularity_change_15_to_16 = rank_2016 - rank_2015)
+
+head(dogs)
+
+dogs <- dogs %>% transmute(breed = breed, height_average_feet= (height_low_inches+height_high_inches)/24, 
+                           popularity_change_15_to_16 = rank_2016 - rank_2015) %>% 
+  arrange(desc(popularity_change_15_to_16))
+
+
+#mettere una lista di files insieme
+files <- list.files(pattern = "file_.*csv") #creo il vettore files facendogli selezionare tutti i file con quel nome
+#tipo file_1.csv file_2.csv ecc ecc
+df_list <- lapply(files,read_csv) #applico al vettore il comando read csv
+df <- bind_rows(df_list) #concateno tutti i files assieme per creare un singolo dataset
+
+n <- nrow(data) #per misurare il numero di righe
+
+colnames(data) #si usa per vedere i nomi delle colonne di un dataframe
+
+#questo comando si usa per convertire la forma di un dataframe
+#qui gli chiedo di trasformarmi fraction eprobability in classi dentro una nuova colonna exam
+#e di riportare i valori di fractions e probability in una nuova colonna score
+students <- students %>% gather('fractions','probability',key='exam',value='score')
+
+#elimina i doppioni che incontri basandoti sulla colonna item, tutto il resto puo pure essere diverso, non importa
+fruits %>%
+  distinct(item,.keep_all=TRUE)
+
+#per splittare una colonna tipo MMDDYY in diverse colonne per mese giorno e anno
+# Create the 'month' column
+df %>%
+  mutate(month = str_sub(birthday,1,2))
+
+# Create the 'day' column
+df %>%
+  mutate(day = str_sub(birthday,3,4))
+
+# Create the 'year' column
+df %>%
+  mutate(year = str_sub(birthday,5))
+
+students <- students %>% mutate(gender = str_sub(gender_age,1,1)) #ciò che inizia  efinisce nel digit 1
+head(students)
+
+#una cosa del genere si può fare con la colonna separate quando l'osservazione è diversa tipo lol e lmao
+#in questo caso usiamo un simbolo come indice su dove separare, tipo _
+# Create the 'user_type' and 'country' columns
+df %>%
+  separate(type,c('user_type','country'),'_') #type is the column to split
+
+#con extra= "merge" sto dicendo al sistema che in caso ci sia un nome intermedio o un doppio cognome
+#quello deve far parte della colonna del cognome
+students <- students %>% separate(full_name, c("first_name", "last_name"), " ", extra = "merge")
+
+#str() si usa per capire la struttura interna di un dataset, tipo cosa è numeric, cosa è character ecc
+str(data)
+
+#com mutate + gsub posso cambiare un elemento con un altro
+#tipo $ con nulla o con uno spazio
+#creami la colonna price togliendo $ dalla colonna price
+fruit %>%
+  mutate(price=gsub('\\$','',price))
+
+#con mutate posso anche cambiare la struttura della stringa
+fruit %>%
+  mutate(price = as.numeric(price))
+
+#la creazione di un plot con ggplot avviene per step
+#l'inserimento dei dati fa si che i dati vengano associati al chart
+#lo step dell'aes da indicazioni su quali dati associati al chart mostrare
+#gli elementi successivi tipo geom_point dicono COME mostrarli
+viz <- ggplot(data=airquality, aes(x=Ozone, y=Temp)) +
+  geom_point() + 
+  geom_smooth()
+#posso definire colori differenti per i puntini a seconda della classe, in questo caso Month
+viz <- ggplot(data=airquality, aes(x=Ozone, y=Temp)) +
+  geom_point(aes(color=Month)) + 
+  geom_smooth()
+#se volevo che tutti i puntini fossero di un colore particolare basterebbe metere color= il nome del colore
+#senza usare aes()
+#nell'aes di geom_point poso anche decidere la shape dei punti e l'alpha, ovvero l'opacità
+
+#qui il colore è deciso dalla classe, ma l'opacità è la stessa per tutti i punti
+viz <- ggplot(data=movies, aes(x=imdbRating, y=nrOfWins)) +
+  geom_point(aes(color=nrOfGenre), alpha= .5) 
+
+#qui faccio delle modifiche ai labels, indicando titolo, sottotitolo, x e y, e il nome della legenda con color=
+viz <- ggplot(data=movies, aes(x=imdbRating, y=nrOfWins)) +
+  geom_point(aes(color=nrOfGenre), alpha=0.5) + 
+  labs(title= "Movie Ratings Vs Award Wins", 
+  subtitle= "From IMDB dataset", x= "Movie Rating", 
+  y= "Number of Award Wins", color= "Number of Genre")
+
+#mettendo solo x nelle aes di un barplot, il sistema capirà che y dovranno essere i counts per ogni classe
+bar <- ggplot(books, aes(x=Language)) + geom_bar()
+bar
+#ggsave serve per salvare l'immagine nello spazio dei plot
+ggsave("bar-example.png")
+
+#l'aes fill permette di determinare il colore delle barre  aseconda di una variabile
+bar <- ggplot(mpg, aes(x= class)) + geom_bar(aes(fill= class))
+
+#se vogliamo avere dei dati generici su un data frame, possiamo usare summarise
+#selezioniamo la colonna d'interesse e poi applichiamo summarise
+customers %>%
+  select(age)
+# c(23, 25, 31, 35, 35, 46, 62)
+customers %>%
+  summarize(median_age = median(age))
+# 35
+
+shipments %>%
+  select(states)
+# c('CA', 'CA', 'CA', 'CA', 'NY', 'NY', 'NJ', 'NJ', 'NJ', 'NJ', 'NJ', 'NJ', 'NJ')
+shipments %>%
+  summarize(n_distinct_states = n_distinct(states))
+# 3
+#con median() vedi la mediana, con n_distinct() vedi il numero di elementi diversi, con sd() vedi la dev st
+
+#aggiungendo na.rm= TRUE elimini gli NA
+most_expensive <- orders %>% 
+  summarize(most_expensive = max(price, na.rm= TRUE))
+
+#quando vogliamo sapere tipo la media dei vari gruppi di oggetti si puo fare group_by
+grades <- df %>%
+  group_by(student) %>%
+  summarize(mean_grade = mean(grade))
+#group_by funziona anche mettendo più classi
+df %>%
+  group_by(location,day_of_week) %>%
+  summarize(mean_total_sales = mean(total_sales))
+
+#se voglio una count per ogni classe posso usare n() in cui non devo mettere nessuna colonna
+shoes_sold <- orders %>%
+  group_by(shoe_type) %>% 
+  summarize(count = n())
+
+#group_by può anche essere usato per filtrare i dati con filter()
+enrollments %>%
+  group_by(course) %>%
+  filter(mean(quiz_score) < 80)
+#in questo caso prendo solo i dati con una media di quiz_score < 80 per ogni gruppo
+
+#posso anche applicarlo a seconda del count, ovvero filtrami solo quelli con count > 16, per esempio
+most_pop_orders <- orders %>%
+  group_by(shoe_type) %>%
+  filter(n() > 16)
+
+#posso usare group_by anche con mutate per riordinare il dataset e mettere nuove colonne 
+#in cui fare misurazioni per gruppi tipo prezzo medio classe - prezzo medio elemento
+enrollments %>% 
+  group_by(course) %>% 
+  mutate(diff_from_course_mean = quiz_score - mean(quiz_score))
+
+#con inner_join posso unire dataset ma devo fare attenzione a righe multiple
+joined_df <- orders %>%
+  inner_join(customers)
+#posso pure usarlo in consecutivo per unire più dataset
+big_df <- orders %>%
+  inner_join(customers) %>%
+  inner_join(products)
+
+#posso accoppiare inner_join con rename per rinominare una colonna che 
+#ha lo stesso nome in due datasets ma ha significati diversi
+#è per evitare di fare il merge utilizzando la colonna sbagliata
+customers <- customers %>%
+  rename(customer_id = id)
+df <- inner_join(orders, customers)
+#questa cos apossiamo renderla diretta con by, senza bisogno di fare due comandi separati
+orders %>% 
+  inner_join(customers,
+             by = c('customer_id' = 'id'))
+#potremmo anche differenziare due colonne mettendoci dei suffissi
+orders %>% 
+  inner_join(customers,
+             by = c('customer_id' = 'id'),
+             suffix = c('_order','_customer'))
+#quanod uno dei dataset manca di un certo elemento, tipo un pesce rosso, e noi facciamo
+#inner_join perderemo quell'elemento perché non c'è in uno dei dataset
+#per evitare ciò possiamo usare full_join
+full_joined_dfs <- company_a %>%
+  full_join(company_b)
+#potremmo anche fare un left_join, in cui solo le colonne del primo dataset sono tutte incluse
+#mentre quelle del secondo vengono tenute in considerazione solo quando hanno una corrispondenza nel primo
+left_joined_df <- company_a %>%
+  left_join(company_b)
+#right_join è l'esatto opposto
+
+#quando vogliamo unire due dataset possiamo fare bind_rows SE le colonne sono le stesse
+concatenated_dfs <- df1 %>%
+  bind_rows(df2)
+
+#trovare rapidamente il terzo quantile e il 90esimo quantile
+third_quartile <- quantile(dataset, c(0.75, 0.9))
+
+#t.test: this tells you how confident you can be that 
+#the sample of values came from a distribution with the specified mean
+#il p_value deve essere < di 0.05
+results <- t.test(sample_distribution, mu = expected_mean) #mu è la media della popolazione ipotetica, non del sample
+
+#il t.test si può anche fare per due samples
+#il p-value ci indica la probabilità che la differenza delle medie sia dovuta al caso
+results <- t.test(distribution_1, distribution_2)
+
+#invece di effettuare tanti t.test (più li usi più c'è probabilità che venga un falso positivo)
+#si può usare ANOVA
+results <- aov(score ~ group, data = df_scores) #dove df_scores è un dataset merged di tanti datasets
+#in questo esempio analizza la relazione tra score e group
+
+
+library(ggplot2)
+library(tidyverse)
+library(maps)
+
+
+
+#load the world map
+world <- map_data("world")
+
+#plot the map with the points on it with different colours according to the species using the Blues palette
+#limits for x e y set
+ggplot() +
+  geom_map(
+    data = world, map = world,
+    aes(long, lat, map_id = region),
+    color = "black", fill = "lightgray", size = 0.1
+  )+
+  geom_point(data=confirmed, aes(x = Long, y = Lat), alpha= 0.5, color= "blue") #+ xlim(-5, 35) + ylim(30, 50)
+
+
+
+library(dplyr)
+library(readr)
+
+# Load the data
+confirmed <- read_csv("corona_confirmed.csv")
+deaths <- read_csv("corona_deaths.csv")
+recovered <- read_csv("corona_recovered.csv")
+
+# Transpose the data frame
+confirmed_rotated <- confirmed %>% group_by(`Country/Region`) %>% summarise_at(vars(-Lat, -Long, -`Province/State`),sum)
+confirmed_rotated <- confirmed_rotated %>% t() %>% as.data.frame()
+
+X <- confirmed_rotated
+#in caso la prima riga non sia quella giusta
+#X <- X[c(2,1,3:nrow(X)), ]
+
+#posso usare questo per mettere la prima riga con nomi colonne
+names(X) <- X[1,]
+X <- X[-1,]
+head(X)
+
+# Transform the columns to numeric values
+X_test <- apply(X,2, as.numeric) %>% as.data.frame()
+X_test
+
+#dal dataset X ho estratto i nomi delle righe per creare un database a singola colonna(la data) chiamato Date
+#poi ho unito Date con X_test (il dataset con i valori convertiti in numeric)
+library(tibble)
+X <- tibble::rownames_to_column(X, "Date") #%>% mutate(Date=gsub('/','',Date))
+Time <- X %>% select(Date)
+
+Time<- as.Date(Time$Date, format="%m/%d/%Y")
+X_new <- cbind(X_test, Time)
+
+library(ggplot2)
+# Create a line graph with date on the X axis and number of cases in Italy on the Y axis
+
+data_line <- X_new %>% select(Italy, Time)
+line <- ggplot(X_new, aes(x=Time, y= Italy)) + geom_line(color= "blue")  +  geom_point() + 
+  labs(title= "Coviddì c'è", subtitle= "Fuck! Lock everything!", x= 'Date', y= 'Cases') + 
+  theme(axis.text.x = element_text(angle=90))
+line
